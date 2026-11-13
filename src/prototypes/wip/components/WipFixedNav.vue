@@ -3,10 +3,7 @@ import { ref, watch } from 'vue'
 import WipNav from './WipNav.vue'
 import WipAnimatedDash from './motion/WipAnimatedDash.vue'
 
-const showGrid = defineModel('showGrid', { type: Boolean, default: false })
 const visible = defineModel('visible', { type: Boolean, default: false })
-const font = defineModel('font', { type: String, default: 'serif' })
-const background = defineModel('background', { type: String, default: 'white' })
 
 const dashDrawKey = ref(0)
 
@@ -22,13 +19,9 @@ watch(visible, (isVisible) => {
     :aria-hidden="!visible"
   >
     <div class="wip-fixed-nav__inner">
-      <WipNav
-        v-model:show-grid="showGrid"
-        v-model:font="font"
-        v-model:background="background"
-        :run-type="visible"
-        :queue="false"
-      />
+      <WipNav :run-type="visible" :queue="false">
+        <template #tools><slot name="tools" /></template>
+      </WipNav>
     </div>
     <WipAnimatedDash
       v-if="visible"
@@ -49,18 +42,20 @@ watch(visible, (isVisible) => {
   left: 0;
   z-index: 20;
   visibility: hidden;
-  background: var(--wip-bg);
-  opacity: 0;
   pointer-events: none;
+  transform: translateY(-100%);
   transition:
-    opacity 0.2s ease,
-    visibility 0.2s ease;
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 0.55s;
 }
 
 .wip-fixed-nav--visible {
   visibility: visible;
-  opacity: 1;
   pointer-events: auto;
+  transform: translateY(0);
+  transition:
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 0s;
 }
 
 .wip-fixed-nav__dash {

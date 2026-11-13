@@ -1,5 +1,4 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { motion } from 'motion-v'
 import WipAnimatedDash from './motion/WipAnimatedDash.vue'
 import { spring, useWipReducedMotion } from '../composables/useWipMotion.js'
@@ -13,34 +12,6 @@ defineProps({
 
 const topMarkerCount = 4
 const reduceMotion = useWipReducedMotion()
-const frameEl = ref(null)
-const sideSegments = ref([{ top: 0, height: 0 }])
-
-let frameObserver
-
-function measureSegments() {
-  const frame = frameEl.value
-  if (!frame) return
-  const total = frame.offsetHeight
-  const step = window.innerHeight || total
-  const next = []
-  for (let top = 0; top < total; top += step) {
-    next.push({ top, height: Math.min(step, total - top) })
-  }
-  sideSegments.value = next.length ? next : [{ top: 0, height: total }]
-}
-
-onMounted(() => {
-  measureSegments()
-  frameObserver = new ResizeObserver(measureSegments)
-  if (frameEl.value) frameObserver.observe(frameEl.value)
-  window.addEventListener('resize', measureSegments)
-})
-
-onBeforeUnmount(() => {
-  frameObserver?.disconnect()
-  window.removeEventListener('resize', measureSegments)
-})
 
 function markerMotion(index) {
   const delay = 0.42 + (index - 1) * 0.055
@@ -60,23 +31,11 @@ function markerMotion(index) {
 </script>
 
 <template>
-  <div ref="frameEl" class="wip-frame" aria-hidden="true">
+  <div class="wip-frame" aria-hidden="true">
     <div class="rules">
       <WipAnimatedDash class="rule rule--top" axis="x" trigger="inView" />
-      <template v-for="(segment, index) in sideSegments" :key="index">
-        <WipAnimatedDash
-          class="rule rule--left"
-          axis="y"
-          trigger="inView"
-          :style="{ top: `${segment.top}px`, height: `${segment.height}px` }"
-        />
-        <WipAnimatedDash
-          class="rule rule--right"
-          axis="y"
-          trigger="inView"
-          :style="{ top: `${segment.top}px`, height: `${segment.height}px` }"
-        />
-      </template>
+      <span class="rule rule--side rule--left" />
+      <span class="rule rule--side rule--right" />
     </div>
 
     <div class="markers markers--top">
@@ -117,6 +76,18 @@ function markerMotion(index) {
   top: var(--wip-frame-top);
   right: 0;
   left: 0;
+}
+
+.rule--side {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--wip-rule-dash) 0 var(--wip-dash-on),
+    transparent var(--wip-dash-on) calc(var(--wip-dash-on) + var(--wip-dash-gap))
+  );
+  background-size: 1px calc(var(--wip-dash-on) + var(--wip-dash-gap));
 }
 
 .rule--left {
@@ -168,6 +139,6 @@ function markerMotion(index) {
 
 .grid-guides__col {
   height: 100%;
-  background: color-mix(in srgb, var(--wip-rule) 8%, transparent);
+  background: color-mix(in srgb, #874fff 8%, transparent);
 }
 </style>

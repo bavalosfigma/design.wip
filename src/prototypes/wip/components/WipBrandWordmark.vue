@@ -1,6 +1,7 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { WIP_MARK_SCALE, brandOutlines } from '../data/brandOutlines.js'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { WIP_HERO_MARK_SCALE, WIP_MARK_SCALE, brandOutlines } from '../data/brandOutlines.js'
+import { introShapes } from '../data/introShapes.js'
 import {
   isWipSegmentSelected,
   nudgeWipBrandPathPoint,
@@ -35,13 +36,29 @@ const props = defineProps({
 })
 
 const svgRef = ref(null)
-const SELECT_STROKE = '#b4b4b4'
-const HANDLE_SIZE = 2
-const HANDLE_HALF = HANDLE_SIZE / 2
-const HIT_SIZE = 10
-const HIT_HALF = HIT_SIZE / 2
+const POINT_STROKE = '#b4b4b4'
+// Match the on-screen anchors on the Figma.Design wordmark, even when the
+// artwork is scaled to a different size.
+const ANCHOR_PX = 2 * WIP_HERO_MARK_SCALE
+const HIT_PX = 10 * WIP_HERO_MARK_SCALE
+const pxPerUnit = ref(props.scale)
+const handleSize = computed(() => ANCHOR_PX / (pxPerUnit.value || 1))
+const handleHalf = computed(() => handleSize.value / 2)
+const hitSize = computed(() => HIT_PX / (pxPerUnit.value || 1))
+const hitHalf = computed(() => hitSize.value / 2)
 
-const meta = computed(() => brandOutlines[props.layoutId])
+let resizeObserver
+
+function measureScale() {
+  const svg = svgRef.value
+  const viewWidth = svg?.viewBox?.baseVal?.width
+  const rendered = svg?.getBoundingClientRect().width
+  if (!viewWidth || !rendered) return
+  pxPerUnit.value = rendered / viewWidth
+}
+
+const outlines = { ...brandOutlines, ...introShapes }
+const meta = computed(() => outlines[props.layoutId])
 const paths = computed(() => wipPathsForLayout(props.layoutId))
 
 const svgProps = computed(() => {
@@ -69,8 +86,8 @@ function letterStyle(index) {
   }
 }
 
-function pathStroke(path) {
-  return isWipSegmentSelected(props.layoutId, path.segment) ? '#0d99ff' : SELECT_STROKE
+function pathStroke() {
+  return POINT_STROKE
 }
 
 function onPathPointerDown(path, event) {
@@ -115,6 +132,16 @@ function onHandlePointerDown(handle, event) {
   window.addEventListener('pointerup', onUp)
   window.addEventListener('pointercancel', onUp)
 }
+
+onMounted(() => {
+  measureScale()
+  resizeObserver = new ResizeObserver(measureScale)
+  if (svgRef.value) resizeObserver.observe(svgRef.value)
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+})
 </script>
 
 <template>
@@ -163,17 +190,17 @@ function onHandlePointerDown(handle, event) {
           >
             <rect
               class="wip-wordmark__handle-hit"
-              :x="handle.x - HIT_HALF"
-              :y="handle.y - HIT_HALF"
-              :width="HIT_SIZE"
-              :height="HIT_SIZE"
+              :x="handle.x - hitHalf"
+              :y="handle.y - hitHalf"
+              :width="hitSize"
+              :height="hitSize"
             />
             <rect
               class="wip-wordmark__handle-dot"
-              :x="handle.x - HANDLE_HALF"
-              :y="handle.y - HANDLE_HALF"
-              :width="HANDLE_SIZE"
-              :height="HANDLE_SIZE"
+              :x="handle.x - handleHalf"
+              :y="handle.y - handleHalf"
+              :width="handleSize"
+              :height="handleSize"
             />
           </g>
         </g>

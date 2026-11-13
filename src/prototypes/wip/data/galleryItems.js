@@ -2,7 +2,6 @@ import beachSunset from '../assets/gallery/beach_sunset.png'
 import birthdayParty from '../assets/gallery/birthday_party.png'
 import mountainView from '../assets/gallery/mountain_view.png'
 import cityTimelapse from '../assets/gallery/city_timelapse.png'
-import familyReunion from '../assets/gallery/family_reunion.png'
 import concertRecording from '../assets/gallery/concert_recording.png'
 import logoDesign from '../assets/gallery/logo_design.png'
 import wildlifeFootage from '../assets/gallery/wildlife_footage.png'
@@ -36,13 +35,6 @@ export const wipGalleryItems = [
     label: 'city_timelapse_2024.mp4',
     mediaHeight: 270,
     fit: 'cover',
-  },
-  {
-    id: 'family',
-    src: familyReunion,
-    label: 'family_reunion_2024.png',
-    mediaHeight: 426,
-    variant: 'green',
   },
   {
     id: 'concert',

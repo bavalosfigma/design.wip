@@ -1,26 +1,15 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useDialTimeline } from 'dialkit/vue'
 import { WIP_HERO_MARK_SCALE, brandOutlines } from '../data/brandOutlines.js'
 import WipBrandWordmark from './WipBrandWordmark.vue'
-import WipEyebrow from './WipEyebrow.vue'
-import WipIntroCopy from './WipIntroCopy.vue'
-import WipEditable from './WipEditable.vue'
-import WipInformation from './WipInformation.vue'
+import WipTypeOn from './motion/WipTypeOn.vue'
 
 const props = defineProps({
   markColor: {
     type: String,
     default: '',
   },
-})
-
-const introFont = ref({
-  size: 72,
-  leading: 90,
-  weight: 400,
-  width: 100,
-  slant: 0,
 })
 
 const reduceMotion =
@@ -38,7 +27,7 @@ function letterClip(at) {
   return {
     at,
     duration: LETTER_DURATION,
-    transition: { type: 'spring', stiffness: 401, damping: 50, mass: 0.8 },
+    transition: { type: 'easing', duration: LETTER_DURATION, ease: [0.16, 1, 0.3, 1] },
     from: {
       opacity: [0, 0, 1, 0.01],
       y: [400, -200, 400, 1],
@@ -77,7 +66,7 @@ function wordmarkTimeline() {
 const timeline = useDialTimeline(
   'Figma.Design',
   wordmarkTimeline(),
-  { autoplay: true, persist: true },
+  { id: 'figma-design-letters', autoplay: true },
 )
 
 const restPose = { opacity: 1, y: 0, rotate: 0 }
@@ -88,7 +77,9 @@ function posesFor(word) {
     return Array.from({ length: count }, (_, glyphIndex) => {
       if (reduceMotion) return restPose
       const key = word.glyphs[glyphIndex] ?? `letter${glyphIndex}`
-      return timeline.value[word.id]?.[key]?.current ?? restPose
+      const clip = timeline.value[word.id]?.[key]
+      if (!clip?.current || clip.done) return restPose
+      return clip.current
     })
   })
 }
@@ -115,14 +106,14 @@ const designPoses = posesFor(WORDMARKS[1])
         :fill="props.markColor"
       />
     </div>
-    <div class="wip-hero__below">
-      <div class="wip-hero__meta">
-        <WipEyebrow trigger="mount" queue />
-      </div>
-      <WipEditable v-model="introFont" name="Intro" class="wip-hero__sliders" />
-      <WipIntroCopy class="wip-hero__intro" :font="introFont" />
-      <WipInformation class="wip-hero__information" />
-    </div>
+    <WipTypeOn
+      as="p"
+      class="wip-hero__note type-body-large"
+      text="Come learn fast and ship thoughtfully with people who care"
+      trigger="mount"
+      :delay="0.4"
+      :ms="28"
+    />
   </div>
 </template>
 
@@ -136,21 +127,13 @@ const designPoses = posesFor(WORDMARKS[1])
   grid-template-columns: subgrid;
 }
 
-.wip-hero__wordmarks,
-.wip-hero__meta,
-.wip-hero__intro {
-  grid-column: 1 / -1;
-}
-
-.wip-hero__below {
-  display: contents;
-}
-
 .wip-hero__wordmarks {
+  grid-column: 1 / -1;
   display: flex;
   align-items: flex-start;
+  justify-content: center;
   width: 100%;
-  margin-top: 60px;
+  margin-top: 0;
   line-height: 0;
 }
 
@@ -158,22 +141,12 @@ const designPoses = posesFor(WORDMARKS[1])
   margin-left: 30px;
 }
 
-.wip-hero__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-top: 24px;
-}
-
-.wip-hero__sliders {
-  grid-column: 1 / -1;
-  margin-top: 28px;
-}
-
-.wip-hero__information {
+.wip-hero .wip-hero__note {
+  display: block;
   grid-column: 7 / 9;
-  margin-top: 80px;
+  width: 100%;
+  margin: 28px 0 0;
+  color: var(--wip-ink);
+  text-align: left;
 }
 </style>

@@ -8,7 +8,7 @@
   --wip-rule: #000;
   --wip-ink: #121212;
   --wip-ink-soft: #6b6b6b;
-  --wip-rule-dash: rgb(0 0 0 / 12%);
+  --wip-rule-dash: color-mix(in srgb, var(--wip-rule) 15%, transparent);
   --wip-dash-on: 2px;
   --wip-dash-gap: 2px;
   --wip-frame-top: 34px;

@@ -1,5 +1,6 @@
 import { reactive, ref } from 'vue'
 import { brandOutlines } from '../data/brandOutlines.js'
+import { introShapes } from '../data/introShapes.js'
 import { commandsToPathD, getPathHandles, moveOnPathPoint, parsePathD } from '../utils/svgPath.js'
 
 function segmentForPath(layoutId, pathIndex) {
@@ -11,7 +12,7 @@ function segmentForPath(layoutId, pathIndex) {
 
 const pathState = reactive(
   Object.fromEntries(
-    Object.entries(brandOutlines).map(([layoutId, mark]) => [
+    Object.entries({ ...brandOutlines, ...introShapes }).map(([layoutId, mark]) => [
       layoutId,
       mark.paths.map((path, pathIndex) => ({
         fill: path.fill,

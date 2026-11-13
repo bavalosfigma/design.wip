@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { motion } from 'motion-v'
-import { spring, useWipReducedMotion, wipViewport } from '../../composables/useWipMotion.js'
+import { useWipReducedMotion, wipViewport } from '../../composables/useWipMotion.js'
 
 const props = defineProps({
   axis: {
@@ -20,11 +20,16 @@ const props = defineProps({
 
 const reduceMotion = useWipReducedMotion()
 
-const drawFrom = computed(() => (props.axis === 'x' ? { scaleX: 0, scaleY: 1 } : { scaleX: 1, scaleY: 0 }))
-const drawTo = { scaleX: 1, scaleY: 1 }
+const drawFrom = computed(() =>
+  props.axis === 'x'
+    ? { clipPath: 'inset(0 100% 0 0)' }
+    : { clipPath: 'inset(0 0 100% 0)' },
+)
+const drawTo = { clipPath: 'inset(0 0 0 0)' }
 
 const transition = computed(() => ({
-  ...spring,
+  duration: 1.2,
+  ease: [0.65, 0, 0.35, 1],
   delay: props.delay,
 }))
 
@@ -62,13 +67,12 @@ const bind = computed(() => {
 <style scoped>
 .wip-animated-dash {
   display: block;
-  will-change: transform;
 }
 
 .wip-animated-dash--x {
   width: 100%;
   height: 1px;
-  transform-origin: left center;
+  clip-path: inset(0 100% 0 0);
   background: repeating-linear-gradient(
     to right,
     var(--wip-rule-dash) 0 var(--wip-dash-on),
@@ -80,7 +84,7 @@ const bind = computed(() => {
 .wip-animated-dash--y {
   width: 1px;
   height: 100%;
-  transform-origin: top center;
+  clip-path: inset(0 0 100% 0);
   background: repeating-linear-gradient(
     to bottom,
     var(--wip-rule-dash) 0 var(--wip-dash-on),

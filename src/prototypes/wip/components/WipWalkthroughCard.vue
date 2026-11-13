@@ -149,33 +149,35 @@ onMounted(() => {
 }
 
 .wip-walkthrough-card__corner {
+  --wip-print-mark: calc(24px * 8 / 14);
+  --wip-print-mark-inset: calc(24px - var(--wip-print-mark));
   position: absolute;
   z-index: 2;
-  width: 24px;
-  height: 24px;
+  width: var(--wip-print-mark);
+  height: var(--wip-print-mark);
   pointer-events: none;
 }
 
 .wip-walkthrough-card__corner--tl {
-  top: 0;
-  left: 0;
+  top: var(--wip-print-mark-inset);
+  left: var(--wip-print-mark-inset);
 }
 
 .wip-walkthrough-card__corner--tr {
-  top: 0;
-  right: 0;
+  top: var(--wip-print-mark-inset);
+  right: var(--wip-print-mark-inset);
   transform: scaleX(-1);
 }
 
 .wip-walkthrough-card__corner--br {
-  right: 0;
-  bottom: 0;
+  right: var(--wip-print-mark-inset);
+  bottom: var(--wip-print-mark-inset);
   transform: rotate(180deg);
 }
 
 .wip-walkthrough-card__corner--bl {
-  bottom: 0;
-  left: 0;
+  bottom: var(--wip-print-mark-inset);
+  left: var(--wip-print-mark-inset);
   transform: scaleY(-1);
 }
 
@@ -218,6 +220,40 @@ onMounted(() => {
 
 .wip-walkthrough-card__dash--right {
   right: -1px;
+}
+
+.wip-walkthrough-card__link:hover .wip-walkthrough-card__corner,
+.wip-walkthrough-card__link:focus-visible .wip-walkthrough-card__corner,
+.wip-walkthrough-card__link:hover .wip-walkthrough-card__dash,
+.wip-walkthrough-card__link:focus-visible .wip-walkthrough-card__dash {
+  animation: wip-print-flash 0.5s linear;
+}
+
+@keyframes wip-print-flash {
+  0%,
+  100% {
+    opacity: 1;
+    filter: none;
+  }
+
+  16%,
+  48% {
+    opacity: 0;
+  }
+
+  32% {
+    opacity: 1;
+    filter: contrast(8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wip-walkthrough-card__link:hover .wip-walkthrough-card__corner,
+  .wip-walkthrough-card__link:focus-visible .wip-walkthrough-card__corner,
+  .wip-walkthrough-card__link:hover .wip-walkthrough-card__dash,
+  .wip-walkthrough-card__link:focus-visible .wip-walkthrough-card__dash {
+    animation: none;
+  }
 }
 
 .wip-walkthrough-card__panel {
